@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     # Redis
     REDIS_URL: Optional[str] = "redis://localhost:6379/0"
 
-    # CORS
+    # CORS (same-origin production demo does not need extra origins)
     BACKEND_CORS_ORIGINS: List[str] = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
@@ -40,6 +40,7 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3000",
         "*"
     ]
+    FRONTEND_URL: Optional[str] = None
 
     # AI / LLM
     LLM_PROVIDER: str = "gemini"  # 'gemini' or 'mock'

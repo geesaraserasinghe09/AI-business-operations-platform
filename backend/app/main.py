@@ -1,8 +1,11 @@
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
+
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
 from app.db.init_db import init_db
@@ -96,6 +99,24 @@ def health_check():
         "environment": settings.ENVIRONMENT,
         "llm_provider": settings.LLM_PROVIDER
     }
+
+
+STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
+
+if STATIC_DIR.is_dir():
+    assets_dir = STATIC_DIR / "assets"
+    if assets_dir.is_dir():
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="frontend-assets")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def serve_spa(full_path: str):
+        """Serve the React dashboard from the same origin in production."""
+        if full_path.startswith("api"):
+            return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"detail": "Not Found"})
+        candidate = STATIC_DIR / full_path
+        if full_path and candidate.is_file():
+            return FileResponse(candidate)
+        return FileResponse(STATIC_DIR / "index.html")
 
 
 if __name__ == "__main__":

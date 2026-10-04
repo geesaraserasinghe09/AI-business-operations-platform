@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: ai-business-operations-platform
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: LLM_PROVIDER
+        value: mock
+      - key: DATABASE_URL
+        value: sqlite:////tmp/ai_business_ops.db
+      - key: JWT_SECRET
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false
